@@ -1,17 +1,17 @@
-name: CI/CD Pipeline
+name: Build and Deploy Task App
 
 on:
   push:
     branches:
-      - main  # Triggers workflow on push to the main branch
+      - main  # Trigger workflow on push to the main branch
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
-    # Checkout code from the repository
-    - name: Checkout Code
+    # Checkout the repository
+    - name: Checkout code
       uses: actions/checkout@v3
 
     # Set up Docker
@@ -22,26 +22,47 @@ jobs:
     - name: Log in to Docker Hub
       uses: docker/login-action@v2
       with:
-        username: ${{ secrets.DOCKER_USERNAME }} # Add to GitHub Secrets
-        password: ${{ secrets.DOCKER_PASSWORD }} # Add to GitHub Secrets
+        username: ${{ secrets.DOCKER_USERNAME }} # Add this to GitHub Secrets
+        password: ${{ secrets.DOCKER_PASSWORD }} # Add this to GitHub Secrets
 
-    # Build and Push Docker Image
-    - name: Build and Push Docker Image
+    # Build and Push Backend Docker Image
+    - name: Build and Push Backend Image
       uses: docker/build-push-action@v4
       with:
+        context: ./backend
         push: true
-        tags: ${{ secrets.DOCKER_USERNAME }}/my-frontend:latest
+        tags: ${{ secrets.DOCKER_USERNAME }}/taskapp-backend:latest
 
-    # Deploy the application (example via SSH)
-    - name: Deploy via SSH
+    # Build and Push Frontend Docker Image
+    - name: Build and Push Frontend Image
+      uses: docker/build-push-action@v4
+      with:
+        context: ./frontend
+        push: true
+        tags: ${{ secrets.DOCKER_USERNAME }}/taskapp-frontend:latest
+
+    # Deploy Backend (example via SSH)
+    - name: Deploy Backend via SSH
       uses: appleboy/ssh-action@v0.1.8
       with:
         host: ${{ secrets.SERVER_HOST }}
         username: ${{ secrets.SERVER_USER }}
         key: ${{ secrets.SERVER_PRIVATE_KEY }}
         script: |
-          docker pull ${{ secrets.DOCKER_USERNAME }}/my-frontend:latest
-          docker stop task-app || true
-          docker rm task-app || true
-          docker run -d --name task-app -p 3000:80 ${{ secrets.DOCKER_USERNAME }}/my-frontend:latest
+          docker pull ${{ secrets.DOCKER_USERNAME }}/taskapp-backend:latest
+          docker stop taskapp-backend || true
+          docker rm taskapp-backend || true
+          docker run -d --name taskapp-backend -p 5000:5000 ${{ secrets.DOCKER_USERNAME }}/taskapp-backend:latest
 
+    # Deploy Frontend (example via SSH)
+    - name: Deploy Frontend via SSH
+      uses: appleboy/ssh-action@v0.1.8
+      with:
+        host: ${{ secrets.SERVER_HOST }}
+        username: ${{ secrets.SERVER_USER }}
+        key: ${{ secrets.SERVER_PRIVATE_KEY }}
+        script: |
+          docker pull ${{ secrets.DOCKER_USERNAME }}/taskapp-frontend:latest
+          docker stop taskapp-frontend || true
+          docker rm taskapp-frontend || true
+          docker run -d --name taskapp-frontend -p 3000:80 ${{ secrets.DOCKER_USERNAME }}/taskapp-frontend:latest
