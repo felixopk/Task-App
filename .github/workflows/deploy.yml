@@ -37,7 +37,7 @@ jobs:
     - name: Build and Push Frontend Image
       uses: docker/build-push-action@v4
       with:
-        context: ./ task-frontend
+        context: ./task-frontend
         push: true
         tags: ${{ secrets.DOCKER_USERNAME }}/taskapp-frontend:latest
 
