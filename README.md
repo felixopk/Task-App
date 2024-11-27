@@ -1,3 +1,5 @@
+![GitHub Actions](https://github.com/felixopk/Task-App/actions/workflows/deploy.yml/badge.svg)
+
 # Task App with CI/CD Pipeline
 
 ## 🌟 Overview
