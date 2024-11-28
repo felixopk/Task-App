@@ -33,4 +33,4 @@ Task-App/ ├── backend/ # Node.js API code ├── frontend/ # React app 
 
 ## 🎯 Future Improvements
 - Add unit and integration tests.
-- Enable autoscaling for the EC2 instance using AWS ECS or Kubernetes
+- Enable autoscaling for the EC2 instance using AWS ECS or Kubernetes.
