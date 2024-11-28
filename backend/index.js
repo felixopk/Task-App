@@ -7,8 +7,14 @@ require('dotenv').config(); // Load environment variables from .env file
 // Initialize the Express app
 const app = express();
 
+// CORS Configuration
+const corsOptions = {
+  origin: 'http://51.20.135.151', // Replace with your frontend's public URL
+  methods: ['GET', 'POST', 'DELETE'], // Specify allowed methods
+};
+
 // Middleware
-app.use(cors()); // Enable CORS for cross-origin requests
+app.use(cors(corsOptions)); // Enable CORS for cross-origin requests with options
 app.use(express.json()); // Parse incoming JSON requests
 
 // MongoDB Connection
@@ -21,12 +27,15 @@ mongoose.connect(MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
   });
 
 // Define Task Schema
-const taskSchema = new mongoose.Schema({
-  title: { type: String, required: true }, // Mark title as required
-  description: { type: String, required: true }, // Mark description as required
-  completed: { type: Boolean, default: false },
-  category: { type: String, default: 'General' }, // Default category
-}, { timestamps: true }); // Automatically add createdAt and updatedAt fields
+const taskSchema = new mongoose.Schema(
+  {
+    title: { type: String, required: true }, // Mark title as required
+    description: { type: String, required: true }, // Mark description as required
+    completed: { type: Boolean, default: false },
+    category: { type: String, default: 'General' }, // Default category
+  },
+  { timestamps: true } // Automatically add createdAt and updatedAt fields
+);
 
 // Create Task Model
 const Task = mongoose.model('Task', taskSchema);
@@ -84,6 +93,6 @@ app.delete('/tasks/:id', async (req, res) => {
 
 // Start the server
 const PORT = process.env.PORT || 5000; // Use environment variable or default to 5000
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
   console.log(`Server running on port ${PORT}`);
 });
